@@ -1,26 +1,60 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateResultDto } from './dto/create-result.dto';
 import { UpdateResultDto } from './dto/update-result.dto';
+import { Result } from './entities/result.entity';
 
 @Injectable()
 export class ResultsService {
-  create(createResultDto: CreateResultDto) {
-    return 'This action adds a new result';
+  constructor(
+    @InjectRepository(Result)
+    private readonly resultsModelRepository: Repository<Result>,
+  ) {}
+
+  async create(createResultsDto: CreateResultDto) {
+    try {
+      const deliveryOrder =
+        this.resultsModelRepository.create(createResultsDto);
+      return this.resultsModelRepository.save(deliveryOrder);
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
-  findAll() {
-    return `This action returns all results`;
+  async findAll() {
+    return this.resultsModelRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} result`;
+  async findOne(id: number) {
+    try {
+      const results = await this.resultsModelRepository.findOne({
+        where: { id },
+      });
+      if (!results) {
+        throw new NotFoundException(`results with ID ${id} not found`);
+      }
+      return results;
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
-  update(id: number, updateResultDto: UpdateResultDto) {
-    return `This action updates a #${id} result`;
+  async update(id: number, updateResultsDto: UpdateResultDto) {
+    try {
+      await this.resultsModelRepository.update({ id }, updateResultsDto);
+      return this.findOne(id);
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} result`;
+  async remove(id: number) {
+    const resultsModelRepository = await this.findOne(id);
+    if ('error' in resultsModelRepository) {
+      // DeliveryOrder not found, return the error
+      return resultsModelRepository;
+    }
+    return this.resultsModelRepository.remove([resultsModelRepository]);
   }
 }
