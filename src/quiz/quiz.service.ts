@@ -8,17 +8,36 @@ import { Repository } from 'typeorm';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { Quiz } from './entities/quiz.entity';
+import { SubCategory } from '../sub_category/entities/sub_category.entity';
 
 @Injectable()
 export class QuizService {
   constructor(
     @InjectRepository(Quiz)
     private readonly quizRepository: Repository<Quiz>,
+    @InjectRepository(SubCategory)
+    private readonly subCategoryRepository: Repository<SubCategory>,
   ) {}
 
   async create(createQuizDto: CreateQuizDto): Promise<Quiz> {
+    const { subcategoryId } = createQuizDto;
+
+    // Check if the subcategoryId exists
+    const subCategory = await this.subCategoryRepository.findOne({
+      where: { id: subcategoryId },
+    });
+
+    if (!subCategory) {
+      throw new NotFoundException(
+        `SubCategory with ID ${subcategoryId} not found`,
+      );
+    }
+
     try {
-      const quiz = this.quizRepository.create(createQuizDto);
+      const quiz = this.quizRepository.create({
+        ...createQuizDto,
+        subcategory: subCategory,
+      });
       return await this.quizRepository.save(quiz);
     } catch (e) {
       throw new InternalServerErrorException(
@@ -67,7 +86,7 @@ export class QuizService {
   }
 
   async remove(id: number): Promise<void> {
-    const quiz = await this.findOne(id); 
+    const quiz = await this.findOne(id);
     try {
       await this.quizRepository.remove(quiz);
     } catch (e) {
