@@ -17,6 +17,7 @@ import { Cookiegetter } from '../decorators/cookie_getter.decorator';
 import { creatorGuard } from '../guards/admin.creator.guard';
 import { AdminGuard } from '../guards/admin.guard';
 import { SelfAdminGuard } from '../guards/self.admin.guard';
+import { LoginAdminDto } from './dto/admin.login.dto';
 
 @ApiTags('admin')
 // @Controller('admin')
@@ -24,9 +25,9 @@ import { SelfAdminGuard } from '../guards/self.admin.guard';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @UseGuards(creatorGuard)
-  @UseGuards(SelfAdminGuard)
-  @UseGuards(AdminGuard)
+  // @UseGuards(creatorGuard)
+  // @UseGuards(SelfAdminGuard)
+  // @UseGuards(AdminGuard)
   @Post()
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
@@ -34,13 +35,13 @@ export class AdminController {
 
   @Post('login')
   signIn(
-    @Body() createAdminDto: CreateAdminDto,
+    @Body() loginAdminDto: LoginAdminDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.adminService.signIn(createAdminDto, res);
+    return this.adminService.signIn(loginAdminDto, res);
   }
 
-  @UseGuards(AdminGuard)
+  // @UseGuards(AdminGuard)
   @Post('logout')
   logout(
     @Cookiegetter('refresh_token') refreshToken: string,
@@ -49,8 +50,8 @@ export class AdminController {
     return this.adminService.logout(refreshToken, res);
   }
 
-  @UseGuards(creatorGuard)
-  @UseGuards(AdminGuard)
+  // @UseGuards(creatorGuard)
+  // @UseGuards(AdminGuard)
   @Get()
   findAll() {
     return this.adminService.findAll();

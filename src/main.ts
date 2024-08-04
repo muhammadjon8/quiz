@@ -11,10 +11,10 @@ async function start() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
-    .setTitle('Taxi va Yuk tashish xizmati')
-    .setDescription('Har qanday joydan eshigingiz oldigacha')
+    .setTitle('Quiz')
+    .setDescription("Quiz o'ynash va yaratish")
     .setVersion('1.0')
-    .addTag('taxi_delivery')
+    .addTag('Quiz')
     .build();
   app.enableCors({
     origin: ['*'], // Replace with your allowed origins

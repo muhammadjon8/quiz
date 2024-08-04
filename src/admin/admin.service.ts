@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { Admin } from './entities/admin.entity';
+import { LoginAdminDto } from './dto/admin.login.dto';
 
 
 @Injectable()
@@ -121,16 +122,16 @@ export class AdminService {
     }
   }
 
-  async signIn(createAuthDto: CreateAdminDto, res: Response) {
+  async signIn(loginAdminDto: LoginAdminDto, res: Response) {
     const admin = await this.adminModel.findOne({
-      where: { login: createAuthDto.login },
+      where: { login: loginAdminDto.login },
     });
     if (!admin) {
       throw new BadRequestException('User does not exist');
     }
 
     const passwordMatch = await bcrypt.compare(
-      createAuthDto.password,
+      loginAdminDto.password,
       admin.password,
     );
     if (!passwordMatch) {
