@@ -1,26 +1,79 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
+import { Quiz } from './entities/quiz.entity';
 
 @Injectable()
 export class QuizService {
-  create(createQuizDto: CreateQuizDto) {
-    return 'This action adds a new quiz';
+  constructor(
+    @InjectRepository(Quiz)
+    private readonly quizRepository: Repository<Quiz>,
+  ) {}
+
+  async create(createQuizDto: CreateQuizDto): Promise<Quiz> {
+    try {
+      const quiz = this.quizRepository.create(createQuizDto);
+      return await this.quizRepository.save(quiz);
+    } catch (e) {
+      throw new InternalServerErrorException(
+        `Failed to create quiz: ${e.message}`,
+      );
+    }
   }
 
-  findAll() {
-    return `This action returns all quiz`;
+  async findAll(): Promise<Quiz[]> {
+    try {
+      return await this.quizRepository.find({ relations: ['subcategory'] });
+    } catch (e) {
+      throw new InternalServerErrorException(
+        `Failed to retrieve quizzes: ${e.message}`,
+      );
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} quiz`;
+  async findOne(id: number): Promise<Quiz> {
+    try {
+      const quiz = await this.quizRepository.findOne({
+        where: { id },
+        relations: ['subcategory'], // Load related subcategory
+      });
+      if (!quiz) {
+        throw new NotFoundException(`Quiz with ID ${id} not found`);
+      }
+      return quiz;
+    } catch (e) {
+      throw new InternalServerErrorException(
+        `Failed to retrieve quiz: ${e.message}`,
+      );
+    }
   }
 
-  update(id: number, updateQuizDto: UpdateQuizDto) {
-    return `This action updates a #${id} quiz`;
+  async update(id: number, updateQuizDto: UpdateQuizDto): Promise<Quiz> {
+    await this.findOne(id); // Ensure the quiz exists
+    try {
+      await this.quizRepository.update(id, updateQuizDto);
+      return this.findOne(id); // Return the updated quiz
+    } catch (e) {
+      throw new InternalServerErrorException(
+        `Failed to update quiz: ${e.message}`,
+      );
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} quiz`;
+  async remove(id: number): Promise<void> {
+    const quiz = await this.findOne(id); 
+    try {
+      await this.quizRepository.remove(quiz);
+    } catch (e) {
+      throw new InternalServerErrorException(
+        `Failed to delete quiz: ${e.message}`,
+      );
+    }
   }
 }

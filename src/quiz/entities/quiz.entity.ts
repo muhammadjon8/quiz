@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { SubCategory } from '../../sub_category/entities/sub_category.entity';
 
 @Entity()
 export class Quiz {
@@ -20,6 +21,6 @@ export class Quiz {
   @Column()
   correct_answer: string;
 
-  @Column()
-  subcategoryId: number;
+  @ManyToOne(() => SubCategory, (subCategory) => subCategory.quizzes, {})
+  subcategory: SubCategory;
 }

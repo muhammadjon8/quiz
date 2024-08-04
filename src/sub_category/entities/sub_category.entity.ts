@@ -4,8 +4,10 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Category } from '../../category/entities/category.entity';
+import { Quiz } from '../../quiz/entities/quiz.entity';
 
 @Entity()
 export class SubCategory {
@@ -21,4 +23,7 @@ export class SubCategory {
   @ManyToOne(() => Category, (category) => category.subCategories)
   @JoinColumn({ name: 'categoryId' })
   category: Category;
+
+  @OneToMany(() => Quiz, (quiz) => quiz.subcategory)
+  quizzes: Quiz[];
 }
