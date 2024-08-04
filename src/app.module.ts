@@ -10,6 +10,10 @@ import { SubCategoryModule } from './sub_category/sub_category.module';
 import { QuizModule } from './quiz/quiz.module';
 import { ResultsModule } from './results/results.module';
 import { Category } from './category/entities/category.entity';
+import { User } from './user/entities/user.entity';
+import { SubCategory } from './sub_category/entities/sub_category.entity';
+import { Quiz } from './quiz/entities/quiz.entity';
+import { Result } from './results/entities/result.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
@@ -20,7 +24,7 @@ import { Category } from './category/entities/category.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      entities: [Admin, Category],
+      entities: [Admin, Category, User, SubCategory, Quiz, Result],
       synchronize: true,
       logging: false,
     }),
