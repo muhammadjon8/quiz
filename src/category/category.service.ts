@@ -23,13 +23,14 @@ export class CategoryService {
   }
 
   async findAll() {
-    return this.categoryModelRepository.find();
+    return this.categoryModelRepository.find({ relations: ['category'] });
   }
 
   async findOne(id: number) {
     try {
       const category = await this.categoryModelRepository.findOne({
         where: { id },
+        relations: ['category'],
       });
       if (!category) {
         throw new NotFoundException(`category with ID ${id} not found`);
