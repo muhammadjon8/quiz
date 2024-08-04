@@ -19,5 +19,5 @@ export class Result {
   @ManyToOne(() => SubCategory, (subCategory) => subCategory.results, {
     nullable: false,
   })
-  subcategoryId: SubCategory;
+  subcategory: SubCategory;
 }

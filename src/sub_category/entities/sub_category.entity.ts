@@ -27,6 +27,6 @@ export class SubCategory {
   @OneToMany(() => Quiz, (quiz) => quiz.subcategory)
   quizzes: Quiz[];
 
-  @OneToMany(() => Result, (result) => result.subcategoryId)
+  @OneToMany(() => Result, (result) => result.subcategory)
   results: Result[];
 }
