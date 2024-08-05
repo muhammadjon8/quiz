@@ -1,26 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(User)
+    private readonly userModelRepository: Repository<User>,
+  ) {}
+
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const deliveryOrder = this.userModelRepository.create(createUserDto);
+      return this.userModelRepository.save(deliveryOrder);
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    return this.userModelRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    try {
+      const user = await this.userModelRepository.findOne({
+        where: { id },
+      });
+      if (!user) {
+        throw new NotFoundException(`user with ID ${id} not found`);
+      }
+      return user;
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      await this.userModelRepository.update({ id }, updateUserDto);
+      return this.findOne(id);
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const userModelRepository = await this.findOne(id);
+    if ('error' in userModelRepository) {
+      // DeliveryOrder not found, return the error
+      return userModelRepository;
+    }
+    return this.userModelRepository.remove([userModelRepository]);
   }
 }
