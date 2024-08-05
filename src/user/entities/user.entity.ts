@@ -18,8 +18,8 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
-  confirm_password: string;
+  @Column({ nullable: true })
+  refreshToken: string;
 
   @OneToMany(() => Result, (result) => result.user)
   results: Result[];

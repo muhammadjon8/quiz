@@ -1,16 +1,65 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  Res,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
+import { UserLoginDto } from './dto/login.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userModelRepository: Repository<User>,
+    private readonly jwtService: JwtService,
   ) {}
+  private async getTokens(user: User) {
+    const payload = { id: user.id };
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: process.env.ACCESS_TOKEN_KEY,
+        expiresIn: process.env.ACCESS_TOKEN_TIME,
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: process.env.REFRESH_TOKEN_KEY,
+        expiresIn: process.env.REFRESH_TOKEN_TIME,
+      }),
+    ]);
+
+    return { accessToken, refreshToken };
+  }
+
+  async login(loginDto: UserLoginDto, @Res() res: Response) {
+    const user = await this.userModelRepository.findOne({
+      where: { username: loginDto.username },
+    });
+
+    if (!user || loginDto.password != user.password) {
+      throw new BadRequestException('Invalid credentials');
+    }
+
+    const tokens = await this.getTokens(user);
+
+    await this.userModelRepository.update(user.id, {
+      refreshToken: tokens.refreshToken,
+    });
+
+    res.cookie('refresh_token', tokens.refreshToken, {
+      maxAge: Number(process.env.COOKIE_TIME),
+      httpOnly: true,
+    });
+
+    return { tokens, message: 'Login successful' };
+  }
 
   async create(createUserDto: CreateUserDto) {
     try {

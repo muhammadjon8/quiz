@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,6 +18,8 @@ import {
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
+import { UserLoginDto } from './dto/login.dto';
+import { Response } from 'express';
 
 @ApiTags('user')
 @Controller('user')
@@ -33,6 +36,18 @@ export class UserController {
   @ApiBody({ type: CreateUserDto })
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
+  }
+  @ApiOperation({ summary: 'bu yerda login  qilinadi' })
+  @ApiResponse({
+    status: 201,
+    description: 'The login  created.',
+  })
+  @Post('login')
+  login(
+    @Body() loginDto: UserLoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.userService.login(loginDto, res);
   }
 
   @Get()
