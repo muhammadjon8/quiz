@@ -50,6 +50,23 @@ export class QuizController {
     return this.quizService.findOne(+id);
   }
 
+  @Get('/subcategory/:id')
+  @ApiOperation({ summary: 'Retrieve quizzes by subcategory ID' })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'The ID of the subcategory',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The quizzes with the specified subcategory ID.',
+    type: [Quiz], // indicates an array of Quiz objects
+  })
+  @ApiResponse({ status: 404, description: 'Quizzes not found.' })
+  quizzesBySubcategory(@Param('id') id: string): Promise<Quiz[]> {
+    return this.quizService.findQuizesBySubcategory(+id);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update a quiz by its ID' })
   @ApiParam({

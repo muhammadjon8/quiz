@@ -19,6 +19,9 @@ export class Quiz {
   option3: string;
 
   @Column()
+  subcategoryId: number;
+
+  @Column()
   correct_answer: string;
 
   @ManyToOne(() => SubCategory, (subCategory) => subCategory.quizzes, {})

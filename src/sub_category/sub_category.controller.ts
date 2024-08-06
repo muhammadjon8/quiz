@@ -55,6 +55,18 @@ export class SubCategoryController {
     return this.subCategoryService.findOne(+id);
   }
 
+  @Get('category/:id')
+  @ApiOperation({ summary: 'Get sub-category by categoryID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return the sub-category with the specified Category id.',
+  })
+  @ApiResponse({ status: 404, description: 'Sub-category with this ID not found.' })
+  @ApiParam({ name: 'id', description: 'Sub-category with Category ID' })
+  findByCategory(@Param('id') id: string) {
+    return this.subCategoryService.findByCategoryId(+id);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update sub-category by id' })
   @ApiResponse({

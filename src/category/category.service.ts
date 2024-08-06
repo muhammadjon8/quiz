@@ -23,7 +23,7 @@ export class CategoryService {
   }
 
   async findAll() {
-    return this.categoryModelRepository.find({ relations: ['category'] });
+    return this.categoryModelRepository.find();
   }
 
   async findOne(id: number) {

@@ -56,6 +56,18 @@ export class QuizService {
     }
   }
 
+  async findQuizesBySubcategory(id: number): Promise<Quiz[]> {
+    const quizes = await this.quizRepository.find({
+      where: { subcategoryId: id },
+    });
+    if (quizes.length === 0) {
+      throw new NotFoundException(
+        `No SubCategories found for category ID ${id}`,
+      );
+    }
+    return quizes;
+  }
+
   async findOne(id: number): Promise<Quiz> {
     try {
       const quiz = await this.quizRepository.findOne({

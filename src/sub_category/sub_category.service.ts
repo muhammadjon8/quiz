@@ -45,6 +45,17 @@ export class SubCategoryService {
     }
     return subCategory;
   }
+  async findByCategoryId(id: number): Promise<SubCategory[]> {
+    const subcategories = await this.subCategoryRepository.find({
+      where: { categoryId: id },
+    });
+    if (subcategories.length === 0) {
+      throw new NotFoundException(
+        `No SubCategories found for category ID ${id}`,
+      );
+    }
+    return subcategories;
+  }
 
   async update(
     id: number,
